@@ -2,6 +2,7 @@ import argparse
 import json
 import os
 import random
+import csv
 
 import requests
 import pandas as pd
@@ -90,9 +91,11 @@ def combine(args):
     # save the outputted dataframe
     print("Saving dataset to {}".format(args.output))
     if args.output_format == 'csv':
-        dfs.to_csv(args.output)
+        dfs.to_csv(args.output, quoting=csv.QUOTE_NONNUMERIC)
     elif args.output_format == 'csv.gz':
-        dfs.to_csv(args.output, compression=gzip)
+        dfs.to_csv(args.output, compression="gzip", quoting=csv.QUOTE_NONNUMERIC)
+    elif args.output_format == 'csv.zip':
+        dfs.to_csv(args.output, compression="zip", quoting=csv.QUOTE_NONNUMERIC)
     elif args.output_format in ('xlsx', 'xls', 'excel'):
         dfs.to_excel(args.output)
     elif args.output_format == 'sql':
@@ -120,7 +123,7 @@ def main():
     fetch_parser = subparsers.add_parser('combine', help='Combine downloaded data from the 360 Giving registry into one file')
     fetch_parser.add_argument('--schema', default=SCHEMA_URL, help='URL of 360 Giving data schema')
     fetch_parser.add_argument('--output', default='threesixty_all.csv', help='Output file location (or table name for SQL output)')
-    fetch_parser.add_argument('--output-format', default='csv', choices=['csv', 'xlsx', 'sql', 'csv.gz'], help='Format of output')
+    fetch_parser.add_argument('--output-format', default='csv', choices=['csv', 'xlsx', 'sql', 'csv.gz', 'csv.zip'], help='Format of output')
     fetch_parser.add_argument('--db-uri', default=None, help='URI for accessing the database if sql output format selected')
     fetch_parser.add_argument('--report', action='store_true', help='Output a report with details about the data')
     fetch_parser.add_argument('--report-name', default='report.json', help='File name for report output')

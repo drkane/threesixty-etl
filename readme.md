@@ -95,7 +95,7 @@ included is returned, alongside some details about the values in those columns.
 
 ```
 usage: dataget_cli.py combine [-h] [--schema SCHEMA] [--output OUTPUT]
-                              [--output-format {csv,xlsx,sql,csv.gz,csv.zip}]
+                              [--output-format {csv,xlsx,sql,csv.gz,csv.zip,pickle}]
                               [--db-uri DB_URI] [--report]
                               [--report-name REPORT_NAME]
 
@@ -103,7 +103,7 @@ optional arguments:
   -h, --help            show this help message and exit
   --schema SCHEMA       URL of 360 Giving data schema
   --output OUTPUT       Output file location (or table name for SQL output)
-  --output-format {csv,xlsx,sql,csv.gz,csv.zip}
+  --output-format {csv,xlsx,sql,csv.gz,csv.zip,pickle}
                         Format of output
   --db-uri DB_URI       URI for accessing the database if sql output format
                         selected

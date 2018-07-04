@@ -51,47 +51,53 @@ def fetch(args):
 
 def combine(args):
 
-    # fetch the JSON schema
-    if os.path.exists(args.schema):
-        with open(args.schema) as schema_file:
-            schema = json.load(schema_file)
+    # load a pickle file
+    if args.from_pickle:
+        print("Reading from pickle: {}".format(args.from_pickle))
+        dfs = pd.read_pickle(args.from_pickle)
     else:
-        schema = requests.get(args.schema).json()
 
-    # get the registry
-    with open(os.path.join(args.data_dir, args.registry_file), 'r') as a:
-        registry = json.load(a)
+        # fetch the JSON schema
+        if os.path.exists(args.schema):
+            with open(args.schema) as schema_file:
+                schema = json.load(schema_file)
+        else:
+            schema = requests.get(args.schema).json()
 
-    # get the list of column names
-    column_names, date_fields = get_column_names(schema)
-    field_lookups = field_to_title_from_schema(schema)
-    
-    # go through the registry and make the dataframes
-    dfs = []
-    report = {}
-    for k, i in tqdm.tqdm(enumerate(registry), unit=" files"):
-        pub_name = i.get('publisher', {}).get('name')
-        if pub_name not in report:
-            report[pub_name] = {}
+        # get the registry
+        with open(os.path.join(args.data_dir, args.registry_file), 'r') as a:
+            registry = json.load(a)
 
-        for k, j in enumerate(i.get('distribution', [])):
-            if j.get('download'):
-                df = create_dataframe(j["download"]["file_location"], j["download"]["file_type"], field_lookups=field_lookups)
-                original_columns = df.columns.tolist()
-                df = clean_dataframe(df, column_rename=column_names, date_fields=date_fields)
-                if args.report:
-                    report[pub_name]["{}-{}".format(i["identifier"], k)] = dataset_report(df, original_columns, schema)
-                
-                # add licence and source columns
-                df.loc[:, "source"] = j.get("accessURL", j.get("downloadURL"))
-                df.loc[:, "publisher"] = i.get('publisher', {}).get('name')
-                df.loc[:, "license"] = i.get('license')
+        # get the list of column names
+        column_names, date_fields = get_column_names(schema)
+        field_lookups = field_to_title_from_schema(schema)
+        
+        # go through the registry and make the dataframes
+        dfs = []
+        report = {}
+        for k, i in tqdm.tqdm(enumerate(registry), unit=" files"):
+            pub_name = i.get('publisher', {}).get('name')
+            if pub_name not in report:
+                report[pub_name] = {}
 
-                dfs.append(df)
+            for k, j in enumerate(i.get('distribution', [])):
+                if j.get('download'):
+                    df = create_dataframe(j["download"]["file_location"], j["download"]["file_type"], field_lookups=field_lookups)
+                    original_columns = df.columns.tolist()
+                    df = clean_dataframe(df, column_rename=column_names, date_fields=date_fields)
+                    if args.report:
+                        report[pub_name]["{}-{}".format(i["identifier"], k)] = dataset_report(df, original_columns, schema)
+                    
+                    # add licence and source columns
+                    df.loc[:, "source"] = j.get("accessURL", j.get("downloadURL"))
+                    df.loc[:, "publisher"] = i.get('publisher', {}).get('name')
+                    df.loc[:, "license"] = i.get('license')
 
-    # turn into a single combined dataframe
-    print("Combining data from {} files".format(len(dfs)))
-    dfs = pd.concat(dfs, sort=False)
+                    dfs.append(df)
+
+        # turn into a single combined dataframe
+        print("Combining data from {} files".format(len(dfs)))
+        dfs = pd.concat(dfs, sort=False)
 
     # save the outputted dataframe
     print("Saving dataset to {}".format(args.output))
@@ -106,7 +112,7 @@ def combine(args):
     elif args.output_format == 'sql':
         # rename columns as sql doesn't like :
         dfs = dfs.rename(columns=lambda x: x.replace(":", "_")) 
-        dfs.to_sql(args.output.replace(".csv", ""), args.db_uri)
+        dfs.to_sql(args.output.replace(".csv", ""), args.db_uri, index_label='Identifier')
     elif args.output_format == 'pickle':
         dfs.to_pickle(args.output.replace(".csv", ".pkl"))
 
@@ -136,6 +142,7 @@ def main():
     fetch_parser.add_argument('--db-uri', default=None, help='URI for accessing the database if sql output format selected')
     fetch_parser.add_argument('--report', action='store_true', help='Output a report with details about the data')
     fetch_parser.add_argument('--report-name', default='report.json', help='File name for report output')
+    fetch_parser.add_argument('--from-pickle', help='Skip the combining step and just load the data from a pickle file')
     fetch_parser.set_defaults(func=combine)
 
     args = parser.parse_args()

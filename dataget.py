@@ -149,14 +149,14 @@ def dataset_report(df, original_columns=None, schema=None):
     }
 
     for c in df.columns:
-        if pd.api.types.is_numeric_dtype(df[c].dtype):
+        if pd.api.types.is_numeric_dtype(df[c].dtype) and len(df[c].dropna())>0:
             report["column_description"][c]["max"] = df[c].max()
             report["column_description"][c]["min"] = df[c].min()
             report["column_description"][c]["mean"] = df[c].mean()
             report["column_description"][c]["median"] = df[c].median()
             report["column_description"][c]["sum"] = df[c].sum()
 
-        if pd.api.types.is_datetime64_dtype(df[c].dtype):
+        if pd.api.types.is_datetime64_dtype(df[c].dtype) and len(df[c].dropna())>0:
             report["column_description"][c]["max"] = df[c].max()
             report["column_description"][c]["min"] = df[c].min()
             report["column_description"][c]["sample_values"] = random.sample(

@@ -16,6 +16,8 @@ def json_serial(obj):
         return float(obj)
     elif isinstance(obj, numpy.ndarray):
         return obj.tolist()
+    elif numpy.isnan(obj):
+        return null
 
     raise TypeError ("Type %s not serializable" % type(obj))
 

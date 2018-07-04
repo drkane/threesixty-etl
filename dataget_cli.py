@@ -104,6 +104,8 @@ def combine(args):
     elif args.output_format in ('xlsx', 'xls', 'excel'):
         dfs.to_excel(args.output.replace(".csv", ".xlsx"))
     elif args.output_format == 'sql':
+        # rename columns as sql doesn't like :
+        dfs = dfs.rename(columns=lambda x: x.replace(":", "_")) 
         dfs.to_sql(args.output.replace(".csv", ""), args.db_uri)
     elif args.output_format == 'pickle':
         dfs.to_pickle(args.output.replace(".csv", ".pkl"))

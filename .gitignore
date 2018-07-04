@@ -1,7 +1,9 @@
 data/
 *.csv
-*.csv.gz
+*.gz
 *.json
+*.pkl
+*.zip
 
 *.ipynb
 .ipynb_checkpoints/
@@ -9,3 +11,4 @@ data/
 __pycache__/
 env/
 .ev/
+.vscode/

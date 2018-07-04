@@ -43,6 +43,24 @@ to the distribution record for each publisher. By default this is saved to
 }
 ```
 
+### Command line options
+
+```
+usage: dataget_cli.py fetch [-h] [--registry REGISTRY]
+
+optional arguments:
+  -h, --help           show this help message and exit
+  --registry REGISTRY  Data registry for three sixty giving data
+  --data-dir DATA_DIR   Directory to store the data in
+  --registry-file REGISTRY_FILE
+                        Filename for local copy of data registry (relative to
+                        data-dir)
+  --test                Test download (just sends a HEAD request)
+  --test-number TEST_NUMBER
+                        If testing then how many random downloads to request
+
+```
+
 ## Transform and combine the files
 
 The next step is to load all the files using python pandas, clean some
@@ -72,6 +90,34 @@ python dataget_cli.py combine --report
 
 This outputs a JSON file to `report.json`. For each file a list of the columns
 included is returned, alongside some details about the values in those columns.
+
+### Command line options
+
+```
+usage: dataget_cli.py combine [-h] [--schema SCHEMA] [--output OUTPUT]
+                              [--output-format {csv,xlsx,sql,csv.gz,csv.zip}]
+                              [--db-uri DB_URI] [--report]
+                              [--report-name REPORT_NAME]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --schema SCHEMA       URL of 360 Giving data schema
+  --output OUTPUT       Output file location (or table name for SQL output)
+  --output-format {csv,xlsx,sql,csv.gz,csv.zip}
+                        Format of output
+  --db-uri DB_URI       URI for accessing the database if sql output format
+                        selected
+  --report              Output a report with details about the data
+  --report-name REPORT_NAME
+                        File name for report output
+  --data-dir DATA_DIR   Directory to store the data in
+  --registry-file REGISTRY_FILE
+                        Filename for local copy of data registry (relative to
+                        data-dir)
+  --test                Test download (just sends a HEAD request)
+  --test-number TEST_NUMBER
+                        If testing then how many random downloads to request
+```
 
 ## Installation
 

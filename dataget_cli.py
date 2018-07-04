@@ -93,7 +93,7 @@ def combine(args):
         dfs.to_csv(args.output)
     elif args.output_format == 'csv.gz':
         dfs.to_csv(args.output, compression=gzip)
-    elif args.output_format == 'xlsx':
+    elif args.output_format in ('xlsx', 'xls', 'excel'):
         dfs.to_excel(args.output)
     elif args.output_format == 'sql':
         dfs.to_sql(args.output, args.db_uri)
@@ -118,7 +118,7 @@ def main():
     fetch_parser.set_defaults(func=fetch)
 
     fetch_parser = subparsers.add_parser('combine', help='Combine downloaded data from the 360 Giving registry into one file')
-    fetch_parser.add_argument('--schema', default=SCHEMA_URL, help='Output file location (or table name for SQL output)')
+    fetch_parser.add_argument('--schema', default=SCHEMA_URL, help='URL of 360 Giving data schema')
     fetch_parser.add_argument('--output', default='threesixty_all.csv', help='Output file location (or table name for SQL output)')
     fetch_parser.add_argument('--output-format', default='csv', choices=['csv', 'xlsx', 'sql', 'csv.gz'], help='Format of output')
     fetch_parser.add_argument('--db-uri', default=None, help='URI for accessing the database if sql output format selected')
